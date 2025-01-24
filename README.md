@@ -5,47 +5,47 @@ An innovative and user-friendly code editor to simplify coding for everyone, off
 
 # Features ✨
 
-## Multi-language Support 🌐: Code in Python, JavaScript, Java, C++, and more.
+ Multi-language Support 🌐: Code in Python, JavaScript, Java, C++, and more.
 
-## Real-time Syntax Highlighting 🔒: Instant feedback with color-coded syntax.
+ Real-time Syntax Highlighting 🔒: Instant feedback with color-coded syntax.
 
-## Auto-completion 🔄: Intelligent suggestions for faster coding.
+ Auto-completion 🔄: Intelligent suggestions for faster coding.
 
-## Customizable Themes 🎨: Switch between light, dark, and vibrant themes.
+ Customizable Themes 🎨: Switch between light, dark, and vibrant themes.
 
-## Integrated Debugger 🔧: Debug directly within the editor.
+ Integrated Debugger 🔧: Debug directly within the editor.
 
-## Collaboration Tools 🔗: Real-time workspace sharing.
+ Collaboration Tools 🔗: Real-time workspace sharing.
 
-## Offline Mode ❌📚: Work without internet.
+ Offline Mode ❌📚: Work without internet.
 
-## Version Control Integration 🔐: Sync with GitHub, GitLab, or Bitbucket.
+ Version Control Integration 🔐: Sync with GitHub, GitLab, or Bitbucket.
 
-## Technologies Used 🛠️
+ Technologies Used 🛠️
 
-## Frontend: HTML, CSS, JavaScript, React.js
+ Frontend: HTML, CSS, JavaScript, React.js
 
-## Backend: Node.js, Express.js
+ Backend: Node.js, Express.js
 
-## Database: MongoDB
+ Database: MongoDB
 
-## Editor Engine: Monaco Editor
+ Editor Engine: Monaco Editor
 
 # How to Install 🚀
 
-## Clone the Repository
+ Clone the Repository
 
-### git clone https://github.com/iiiii0vicky0-0singh0iiiii/code-editor.git
-### cd code-editor
+ git clone https://github.com/iiiii0vicky0-0singh0iiiii/code-editor.git
+ cd code-editor
 
-## Install Dependencies
+ Install Dependencies
 
-### npm install
+ npm install
 
-## Run the Application
+ Run the Application
 
-### npm start
+ npm start
 
-## Open in Your Browser
-### Navigate to http://localhost:3000.
+ Open in Your Browser
+ Navigate to http://localhost:3000.
 
