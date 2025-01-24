@@ -1,6 +1,3 @@
-# code-editor-
- A sleek, customizable code editor offering syntax highlighting, multi-language support, collaboration, and offline functionality
-
 
 # Code Editor Project 💻🎨
 
@@ -38,7 +35,7 @@ An innovative and user-friendly code editor to simplify coding for everyone, off
 
 ## Clone the Repository
 
-### git clone https://github.com/your-username/code-editor.git
+### git clone https://github.com/iiiii0vicky0-0singh0iiiii/code-editor.git
 ### cd code-editor
 
 ## Install Dependencies
