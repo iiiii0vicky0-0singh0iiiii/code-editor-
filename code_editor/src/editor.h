@@ -10,7 +10,7 @@ private:
     int cursorLine; // Line where the cursor is located
     int cursorColumn; // Column where the cursor is located
 
-     // Private helper methods
+     // Private helper methods 
 
     void moveCursorUp();
     void moveCursorDown();  
