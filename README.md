@@ -21,15 +21,6 @@ An innovative and user-friendly code editor to simplify coding for everyone, off
 
  Version Control Integration 🔐: Sync with GitHub, GitLab, or Bitbucket.
 
- Technologies Used 🛠️
-
- Frontend: HTML, CSS, JavaScript, React.js
-
- Backend: Node.js, Express.js
-
- Database: MongoDB
-
- Editor Engine: Monaco Editor
 
 # How to Install 🚀
 
