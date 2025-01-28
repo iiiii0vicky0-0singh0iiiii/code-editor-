@@ -87,4 +87,29 @@ alloc(int len)
     return p;
 }
 
+/*
+ * The toupper() in Bcc 5.5 doesn't work, use our own implementation.
+ */
+    static int
+mytoupper(int c)
+{
+    if (c >= 'a' && c <= 'z')
+	return c - 'a' + 'A';
+    return c;
+}
+
+    static void
+myexit(int n)
+{
+    if (!interactive)
+    {
+	// Present a prompt, otherwise error messages can't be read.
+	printf("Press Enter to continue\n");
+	rewind(stdin);
+	(void)getchar();
+    }
+    exit(n);
+}
+
+
 
