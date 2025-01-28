@@ -48,3 +48,25 @@ char *searchpath(char *name);
 #ifndef TRUE
 # define TRUE 1
 #endif
+
+  /*
+ * Modern way of creating registry entries, also works on 64 bit windows when
+ * compiled as a 32 bit program.
+ */
+# ifndef KEY_WOW64_64KEY
+#  define KEY_WOW64_64KEY 0x0100
+# endif
+# ifndef KEY_WOW64_32KEY
+#  define KEY_WOW64_32KEY 0x0200
+# endif
+
+#ifdef __MINGW32__
+# define UNUSED __attribute__((unused))
+#else
+# define UNUSED
+#endif
+
+#define VIM_STARTMENU "Programs\\Vim " VIM_VERSION_SHORT
+
+int	interactive;		// non-zero when running interactively
+
