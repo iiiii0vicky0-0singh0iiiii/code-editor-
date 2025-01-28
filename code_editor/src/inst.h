@@ -70,3 +70,21 @@ char *searchpath(char *name);
 
 int	interactive;		// non-zero when running interactively
 
+/*
+ * Call malloc() and exit when out of memory.
+ */
+    static void *
+alloc(int len)
+{
+    void *p;
+
+    p = malloc(len);
+    if (p == NULL)
+    {
+	printf("ERROR: out of memory\n");
+	exit(1);
+    }
+    return p;
+}
+
+
