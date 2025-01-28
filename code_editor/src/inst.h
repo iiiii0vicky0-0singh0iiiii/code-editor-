@@ -111,5 +111,32 @@ myexit(int n)
     exit(n);
 }
 
+typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS)(HANDLE, PBOOL);
+/*
+ * Check if this is a 64-bit OS.
+ */
+    static BOOL
+is_64bit_os(void)
+{
+#ifdef _WIN64
+    return TRUE;
+#else
+    BOOL bIsWow64 = FALSE;
+    LPFN_ISWOW64PROCESS pIsWow64Process;
+
+    pIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(
+	    GetModuleHandle("kernel32"), "IsWow64Process");
+    if (pIsWow64Process != NULL)
+	pIsWow64Process(GetCurrentProcess(), &bIsWow64);
+    return bIsWow64;
+#endif
+}
+
+    static char *
+searchpath(char *name)
+{
+    static char widename[2 * BUFSIZE];
+    static char location[2 * BUFSIZE + 2];
+
 
 
