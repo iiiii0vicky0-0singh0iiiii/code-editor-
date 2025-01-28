@@ -33,3 +33,18 @@ char *searchpath(char *name);
 #endif
 
 #define sleep(n) Sleep((n) * 1000)
+
+
+
+#define BUFSIZE (MAX_PATH*2)		// long enough to hold a file name path
+#define NUL 0
+
+#define FAIL 0
+#define OK 1
+
+#ifndef FALSE
+# define FALSE 0
+#endif
+#ifndef TRUE
+# define TRUE 1
+#endif
