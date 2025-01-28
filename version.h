@@ -1,7 +1,7 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define EDITOR_NAME "MyCodeEditor"
+#define EDITOR_NAME "Code-editor"
 #define EDITOR_VERSION_MAJOR 1
 #define EDITOR_VERSION_MINOR 0
 #define EDITOR_VERSION_PATCH 0
