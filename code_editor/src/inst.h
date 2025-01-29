@@ -228,6 +228,15 @@ get_shell_folder_path(
 	alt_csidl = -1;
     }
 
+retry:
+    // Initialize pointer to IMalloc interface
+    if (NOERROR != SHGetMalloc(&pMalloc))
+    {
+	printf("\nERROR getting interface for shell_folder_name: \"%s\"\n\n",
+							   shell_folder_name);
+	return FAIL;
+    }
+
 
 
 
