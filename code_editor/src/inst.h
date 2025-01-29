@@ -153,6 +153,23 @@ searchpath(char *name)
     return NULL;
 }
 
+/*
+ * Call searchpath() and save the result in allocated memory, or return NULL.
+ */
+    static char *
+searchpath_save(char *name)
+{
+    char	*p;
+    char	*s;
+
+    p = searchpath(name);
+    if (p == NULL)
+	return NULL;
+    s = alloc(strlen(p) + 1);
+    strcpy(s, p);
+    return s;
+}
+
 
 
 
