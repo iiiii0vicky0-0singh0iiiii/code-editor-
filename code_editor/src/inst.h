@@ -178,6 +178,57 @@ searchpath_save(char *name)
 #endif
 
 
+/*
+ * Get the path to a requested Windows shell folder.
+ *
+ * Return FAIL on error, OK on success
+ */
+    int
+get_shell_folder_path(
+	char *shell_folder_path,
+	const char *shell_folder_name)
+{
+    /*
+     * The following code was successfully built with make_mvc.mak.
+     * The resulting executable worked on Windows 95, Millennium Edition, and
+     * 2000 Professional.  But it was changed after testing...
+     */
+    LPITEMIDLIST    pidl = 0; // Pointer to an Item ID list allocated below
+    LPMALLOC	    pMalloc;  // Pointer to an IMalloc interface
+    int		    csidl;
+    int		    alt_csidl = -1;
+    static int	    desktop_csidl = -1;
+    static int	    programs_csidl = -1;
+    int		    *pcsidl;
+    int		    r;
+
+    if (strcmp(shell_folder_name, "desktop") == 0)
+    {
+	pcsidl = &desktop_csidl;
+	csidl = CSIDL_COMMON_DESKTOPDIRECTORY;
+	alt_csidl = CSIDL_DESKTOP;
+    }
+    else if (strncmp(shell_folder_name, "Programs", 8) == 0)
+    {
+	pcsidl = &programs_csidl;
+	csidl = CSIDL_COMMON_PROGRAMS;
+	alt_csidl = CSIDL_PROGRAMS;
+    }
+    else
+    {
+	printf("\nERROR (internal) unrecognised shell_folder_name: \"%s\"\n\n",
+							   shell_folder_name);
+	return FAIL;
+    }
+
+    // Did this stuff before, use the same ID again.
+    if (*pcsidl >= 0)
+    {
+	csidl = *pcsidl;
+	alt_csidl = -1;
+    }
+
+
 
 
 
