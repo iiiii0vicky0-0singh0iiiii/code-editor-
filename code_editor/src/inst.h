@@ -237,6 +237,20 @@ retry:
 	return FAIL;
     }
 
+ // Get an ITEMIDLIST corresponding to the folder code
+    if (NOERROR != SHGetSpecialFolderLocation(0, csidl, &pidl))
+    {
+	if (alt_csidl < 0 || NOERROR != SHGetSpecialFolderLocation(0,
+							    alt_csidl, &pidl))
+	{
+	    printf("\nERROR getting ITEMIDLIST for shell_folder_name: \"%s\"\n\n",
+							   shell_folder_name);
+	    return FAIL;
+	}
+	csidl = alt_csidl;
+	alt_csidl = -1;
+    }
+
 
 
 
