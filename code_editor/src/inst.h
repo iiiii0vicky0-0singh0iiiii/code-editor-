@@ -170,6 +170,14 @@ searchpath_save(char *name)
     return s;
 }
 
+#ifndef CSIDL_COMMON_PROGRAMS
+# define CSIDL_COMMON_PROGRAMS 0x0017
+#endif
+#ifndef CSIDL_COMMON_DESKTOPDIRECTORY
+# define CSIDL_COMMON_DESKTOPDIRECTORY 0x0019
+#endif
+
+
 
 
 
