@@ -293,7 +293,18 @@ retry:
 	fclose(fd);
 	unlink(tbuf);
     }
+    /*
+     * Keep the found csidl for next time, so that we don't have to do the
+     * write test every time.
+     */
+    if (*pcsidl < 0)
+	*pcsidl = csidl;
 
+    if (strncmp(shell_folder_name, "Programs\\", 9) == 0)
+	strcat(shell_folder_path, shell_folder_name + 8);
+
+    return OK;
+}
 
 
 
