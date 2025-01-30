@@ -273,6 +273,26 @@ retry:
 	return FAIL;
     }
 
+  // If there is an alternative: verify we can write in this directory.
+    // This should cause a retry when the "all users" directory exists but we
+    // are a normal user and can't write there.
+    if (alt_csidl >= 0)
+    {
+	char tbuf[BUFSIZE];
+	FILE *fd;
+
+	strcpy(tbuf, shell_folder_path);
+	strcat(tbuf, " \\ Write test");
+	fd = fopen(tbuf, "w");
+	if (fd == NULL)
+	{
+	    csidl = alt_csidl;
+	    alt_csidl = -1;
+	    goto retry;
+	}
+	fclose(fd);
+	unlink(tbuf);
+    }
 
 
 
