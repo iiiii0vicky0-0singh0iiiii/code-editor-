@@ -250,6 +250,28 @@ retry:
 	csidl = alt_csidl;
 	alt_csidl = -1;
     }
+ // Translate that ITEMIDLIST to a string
+    r = SHGetPathFromIDList(pidl, shell_folder_path);
+
+    // Free the data associated with pidl
+    pMalloc->lpVtbl->Free(pMalloc, pidl);
+    // Release the IMalloc interface
+    pMalloc->lpVtbl->Release(pMalloc);
+
+    if (!r)
+    {
+	if (alt_csidl >= 0)
+	{
+	    // We probably get here for Windows 95: the "all users"
+	    // desktop/start menu entry doesn't exist.
+	    csidl = alt_csidl;
+	    alt_csidl = -1;
+	    goto retry;
+	}
+	printf("\nERROR translating ITEMIDLIST for shell_folder_name: \"%s\"\n\n",
+							   shell_folder_name);
+	return FAIL;
+    }
 
 
 
