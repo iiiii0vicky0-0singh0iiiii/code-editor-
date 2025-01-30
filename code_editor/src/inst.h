@@ -306,6 +306,43 @@ retry:
     return OK;
 }
 
+/*
+ * List of targets.  The first one (index zero) is used for the default path
+ * for the batch files.
+ */
+#define TARGET_COUNT  9
 
+struct
+{
+    char	*name;		// Vim exe name (without .exe)
+    char	*batname;	// batch file name
+    char	*lnkname;	// shortcut file name
+    char	*exename;	// exe file name
+    char	*exenamearg;	// exe file name when using exearg
+    char	*exearg;	// argument for vim.exe or gvim.exe
+    char	*oldbat;	// path to existing xxx.bat or NULL
+    char	*oldexe;	// path to existing xxx.exe or NULL
+    char	batpath[BUFSIZE];  // path of batch file to create; not
+				   // created when it's empty
+} targets[TARGET_COUNT] =
+{
+    {"all",	"batch files", NULL, NULL, NULL, NULL, NULL, NULL, ""},
+    {"vim",	"vim.bat",	"code_editor.lnk",
+			"code_editor.exe",    "code_editor1.exe",  "", NULL, NULL, ""},
+    {"gvim",	"code_editor1.bat",	"code_editor1.lnk",
+			"code_editor1.exe",   "code_editor1.exe", "", NULL, NULL, ""},
+    {"evim",	"code_editor1.bat",	"code_editor1 Easy.lnk",
+			"evim.exe",   "code_editor1.exe", "-y", NULL, NULL, ""},
+    {"view",	"view.bat",	"Vim Read-only.lnk",
+			"view.exe",   "code_editor.exe",  "-R", NULL, NULL, ""},
+    {"gview",	"code_editor1.bat",	"gVim Read-only.lnk",
+			"gview.exe",  "code_editor1.exe", "-R", NULL, NULL, ""},
+    {"vimdiff", "vimdiff.bat",	"Vim Diff.lnk",
+			"vimdiff.exe","code_editor.exe",  "-d", NULL, NULL, ""},
+    {"gvimdiff","gvimdiff.bat",	"gVim Diff.lnk",
+			"gvimdiff.exe","gvim.exe", "-d", NULL, NULL, ""},
+    {"vimtutor","vimtutor.bat", "Vim tutor.lnk",
+			"vimtutor.bat",  "vimtutor.bat", "", NULL, NULL, ""},
+};
 
 
