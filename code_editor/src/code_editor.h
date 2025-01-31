@@ -51,3 +51,6 @@
  * Cygwin may have fchdir() in a newer release, but in most versions it
  * doesn't work well and avoiding it keeps the binary backward compatible.
  */
+# if defined(__CYGWIN32__) && defined(HAVE_FCHDIR)
+#  undef HAVE_FCHDIR
+# endif
