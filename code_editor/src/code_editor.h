@@ -36,3 +36,7 @@
 // 700 is needed for mkdtemp().
 #  ifndef _XOPEN_SOURCE
 #   define _XOPEN_SOURCE    700
+#   ifndef _BSD_SOURCE
+#    define _BSD_SOURCE 1
+#   endif
+
