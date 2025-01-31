@@ -87,3 +87,8 @@
 #else
 # define ROOT_UID 0
 #endif
+/* Include MAC_OS_X_VERSION_* macros */
+#ifdef HAVE_AVAILABILITYMACROS_H
+# include <AvailabilityMacros.h>
+#endif
+
