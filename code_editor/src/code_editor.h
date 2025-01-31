@@ -73,3 +73,17 @@
 #  define UINT32_TYPEDEF unsigned int
 # endif
 #endif
+// user ID of root is usually zero, but not for everybody
+#ifdef __TANDEM
+# ifndef _TANDEM_SOURCE
+#  define _TANDEM_SOURCE
+# endif
+# include <floss.h>
+# define ROOT_UID 65535
+# define OLDXAW
+# if (_TANDEM_ARCH_ == 2 && __H_Series_RVU >= 621)
+#  define SA_ONSTACK_COMPATIBILITY
+# endif
+#else
+# define ROOT_UID 0
+#endif
