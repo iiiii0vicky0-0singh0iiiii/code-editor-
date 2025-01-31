@@ -58,3 +58,12 @@
 // identifier causes conflicts.  Therefore use UINT32_T.
 # define UINT32_TYPEDEF uint32_t
 #endif
+
+
+// for INT_MAX, LONG_MAX et al.
+#include <limits.h>
+
+#if !defined(UINT32_TYPEDEF)
+# if defined(uint32_t)  // this doesn't catch typedefs, unfortunately
+#  define UINT32_TYPEDEF uint32_t
+# else
