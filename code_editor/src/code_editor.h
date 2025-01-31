@@ -91,4 +91,10 @@
 #ifdef HAVE_AVAILABILITYMACROS_H
 # include <AvailabilityMacros.h>
 #endif
-
+/*
+ * MACOS_X	    compiling for Mac OS X
+ * MACOS_X_DARWIN   integrating the darwin feature into MACOS_X
+ */
+#if defined(MACOS_X_DARWIN) && !defined(MACOS_X)
+# define MACOS_X
+#endif
