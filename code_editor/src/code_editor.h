@@ -47,3 +47,7 @@
 #   endif
 #  endif
 # endif
+/*
+ * Cygwin may have fchdir() in a newer release, but in most versions it
+ * doesn't work well and avoiding it keeps the binary backward compatible.
+ */
