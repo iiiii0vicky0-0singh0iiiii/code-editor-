@@ -98,3 +98,7 @@
 #if defined(MACOS_X_DARWIN) && !defined(MACOS_X)
 # define MACOS_X
 #endif
+// Unless made through the Makefile enforce GUI on Mac
+#if defined(MACOS_X) && !defined(HAVE_CONFIG_H)
+# define UNIX
+#endif
