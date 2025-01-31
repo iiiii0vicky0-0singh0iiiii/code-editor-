@@ -54,3 +54,7 @@
 # if defined(__CYGWIN32__) && defined(HAVE_FCHDIR)
 #  undef HAVE_FCHDIR
 # endif
+// We may need to define the uint32_t on non-Unix system, but using the same
+// identifier causes conflicts.  Therefore use UINT32_T.
+# define UINT32_TYPEDEF uint32_t
+#endif
