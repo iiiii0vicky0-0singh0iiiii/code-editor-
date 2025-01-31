@@ -102,3 +102,12 @@
 #if defined(MACOS_X) && !defined(HAVE_CONFIG_H)
 # define UNIX
 #endif
+#if defined(FEAT_GUI_MOTIF) \
+    || defined(FEAT_GUI_GTK) \
+    || defined(FEAT_GUI_HAIKU) \
+    || defined(FEAT_GUI_MSWIN) \
+    || defined(FEAT_GUI_PHOTON)
+# if !defined(FEAT_GUI) && !defined(NO_X11_INCLUDES)
+#  define FEAT_GUI
+# endif
+#endif
