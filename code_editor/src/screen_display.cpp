@@ -300,3 +300,6 @@ char_needs_redraw(int off_from, int off_to, int cols)
 	return TRUE;
     return FALSE;
 }
+}
+
+#if defined(FEAT_TERMINAL) || defined(PROTO)
