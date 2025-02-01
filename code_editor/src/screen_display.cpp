@@ -206,3 +206,38 @@ fill_foldcolumn(
 
     level = win_foldinfo.fi_level;
     empty = (fdc == 1) ? 0 : 1;
+ // If the column is too narrow, we start at the lowest level that
+    // fits and use numbers to indicate the depth.
+    first_level = level - fdc - closed + 1 + empty;
+    if (first_level < 1)
+	first_level = 1;
+
+    n = MIN(fdc, level);		// evaluate this once
+    for (i = 0; i < n; i++)
+    {
+	if (win_foldinfo.fi_lnum == lnum
+		&& first_level + i >= win_foldinfo.fi_low_level)
+	    symbol = wp->w_fill_chars.foldopen;
+	else if (first_level == 1)
+	    symbol = wp->w_fill_chars.foldsep;
+	else if (first_level + i <= 9)
+	    symbol = '0' + first_level + i;
+	else
+	    symbol = '>';
+
+	len = utf_char2bytes(symbol, &p[byte_counter]);
+	byte_counter += len;
+	if (first_level + i >= level)
+	{
+	    i++;
+	    break;
+	}
+    }
+
+    if (closed)
+    {
+	if (symbol != 0)
+	{
+	    // rollback length and the character
+	    byte_counter -= len;
+	    if (len > 1)
