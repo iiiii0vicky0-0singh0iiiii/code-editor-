@@ -138,3 +138,7 @@ win_draw_end(
 #endif
 	if ((wp->w_p_nu || wp->w_p_rnu)
 				  && vim_strchr(p_cpo, CPO_NUMCOL) == NULL)
+		  // draw the number column
+	    n = screen_fill_end(wp, ' ', ' ', n, number_width(wp) + 1,
+		       row, endrow, hl_combine_attr(wcr_attr, HL_ATTR(HLF_N)));
+    }
