@@ -252,3 +252,22 @@ fill_foldcolumn(
     return MAX(byte_counter + (fdc - i), (size_t)fdc);
 }
 #endif // FEAT_FOLDING
+
+/*
+ * Return if the composing characters at "off_from" and "off_to" differ.
+ * Only to be used when ScreenLinesUC[off_from] != 0.
+ */
+    static int
+comp_char_differs(int off_from, int off_to)
+{
+    int	    i;
+
+    for (i = 0; i < Screen_mco; ++i)
+    {
+	if (ScreenLinesC[i][off_from] != ScreenLinesC[i][off_to])
+	    return TRUE;
+	if (ScreenLinesC[i][off_from] == 0)
+	    break;
+    }
+    return FALSE;
+}
