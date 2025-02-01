@@ -241,3 +241,14 @@ fill_foldcolumn(
 	    // rollback length and the character
 	    byte_counter -= len;
 	    if (len > 1)
+		    // for a multibyte character, erase all the bytes
+		vim_memset(p + byte_counter, ' ', len);
+	}
+	symbol = wp->w_fill_chars.foldclosed;
+	len = utf_char2bytes(symbol, &p[byte_counter]);
+	byte_counter += len;
+    }
+
+    return MAX(byte_counter + (fdc - i), (size_t)fdc);
+}
+#endif // FEAT_FOLDING
