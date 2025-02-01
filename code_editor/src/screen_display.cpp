@@ -66,3 +66,36 @@ get_wcr_attr(win_T *wp)
 #endif
     return wcr_attr;
 }
+/*
+ * Call screen_fill() with the columns adjusted for 'rightleft' if needed.
+ * Return the new offset.
+ */
+    static int
+screen_fill_end(
+	win_T *wp,
+	int	c1,
+	int	c2,
+	int	off,
+	int	width,
+	int	row,
+	int	endrow,
+	int	attr)
+{
+    int	    nn = off + width;
+
+    if (nn > wp->w_width)
+	nn = wp->w_width;
+#ifdef FEAT_RIGHTLEFT
+    if (wp->w_p_rl)
+    {
+	screen_fill(W_WINROW(wp) + row, W_WINROW(wp) + endrow,
+		W_ENDCOL(wp) - nn, (int)W_ENDCOL(wp) - off,
+		c1, c2, attr);
+    }
+    else
+#endif
+	screen_fill(W_WINROW(wp) + row, W_WINROW(wp) + endrow,
+		wp->w_wincol + off, (int)wp->w_wincol + nn,
+		c1, c2, attr);
+    return nn;
+}
