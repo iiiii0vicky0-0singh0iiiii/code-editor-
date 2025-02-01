@@ -303,3 +303,14 @@ char_needs_redraw(int off_from, int off_to, int cols)
 }
 
 #if defined(FEAT_TERMINAL) || defined(PROTO)
+/*
+ * Return the index in ScreenLines[] for the current screen line.
+ */
+    int
+screen_get_current_line_off(void)
+{
+    return (int)(current_ScreenLine - ScreenLines);
+}
+#endif
+
+#ifdef FEAT_PROP_POPUP
