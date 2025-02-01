@@ -271,3 +271,32 @@ comp_char_differs(int off_from, int off_to)
     }
     return FALSE;
 }
+/*
+ * Check whether the given character needs redrawing:
+ * - the (first byte of the) character is different
+ * - the attributes are different
+ * - the character is multi-byte and the next byte is different
+ * - the character is two cells wide and the second cell differs.
+ */
+    static int
+char_needs_redraw(int off_from, int off_to, int cols)
+{
+    if (cols > 0
+	    && ((ScreenLines[off_from] != ScreenLines[off_to]
+		    || ScreenAttrs[off_from] != ScreenAttrs[off_to])
+		|| (enc_dbcs != 0
+		    && MB_BYTE2LEN(ScreenLines[off_from]) > 1
+		    && (enc_dbcs == DBCS_JPNU && ScreenLines[off_from] == 0x8e
+			? ScreenLines2[off_from] != ScreenLines2[off_to]
+			: (cols > 1 && ScreenLines[off_from + 1]
+						 != ScreenLines[off_to + 1])))
+		|| (enc_utf8
+		    && (ScreenLinesUC[off_from] != ScreenLinesUC[off_to]
+			|| (ScreenLinesUC[off_from] != 0
+			    && comp_char_differs(off_from, off_to))
+			|| ((*mb_off2cells)(off_from, off_from + cols) > 1
+			    && ScreenLines[off_from + 1]
+						!= ScreenLines[off_to + 1])))))
+	return TRUE;
+    return FALSE;
+}
