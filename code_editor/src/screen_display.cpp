@@ -142,3 +142,67 @@ win_draw_end(
 	    n = screen_fill_end(wp, ' ', ' ', n, number_width(wp) + 1,
 		       row, endrow, hl_combine_attr(wcr_attr, HL_ATTR(HLF_N)));
     }
+#ifdef FEAT_RIGHTLEFT
+    if (wp->w_p_rl)
+    {
+	screen_fill(W_WINROW(wp) + row, W_WINROW(wp) + endrow,
+		wp->w_wincol, W_ENDCOL(wp) - 1 - n,
+		c2, c2, attr);
+	screen_fill(W_WINROW(wp) + row, W_WINROW(wp) + endrow,
+		W_ENDCOL(wp) - 1 - n, W_ENDCOL(wp) - n,
+		c1, c2, attr);
+    }
+    else
+#endif
+    {
+	screen_fill(W_WINROW(wp) + row, W_WINROW(wp) + endrow,
+		wp->w_wincol + n, (int)W_ENDCOL(wp),
+		c1, c2, attr);
+    }
+
+    set_empty_rows(wp, row);
+}
+
+#if defined(FEAT_FOLDING) || defined(PROTO)
+/*
+ * Compute the width of the foldcolumn.  Based on 'foldcolumn' and how much
+ * space is available for window "wp", minus "col".
+ */
+    int
+compute_foldcolumn(win_T *wp, int col)
+{
+    int wmw = wp == curwin && p_wmw == 0 ? 1 : p_wmw;
+    int n = wp->w_width - (col + wmw);
+
+    return MIN(wp->w_p_fdc, n);
+}
+
+/*
+ * Fill the foldcolumn at "p" for window "wp".
+ * Only to be called when 'foldcolumn' > 0.
+ * Returns the number of bytes stored in 'p'. When non-multibyte characters are
+ * used for the fold column markers, this is equal to 'fdc' setting. Otherwise,
+ * this will be greater than 'fdc'.
+ */
+    size_t
+fill_foldcolumn(
+    char_u	*p,
+    win_T	*wp,
+    int		closed,		// TRUE of FALSE
+    linenr_T	lnum)		// current line number
+{
+    int		i = 0;
+    int		level;
+    int		first_level;
+    int		empty;
+    int		fdc = compute_foldcolumn(wp, 0);
+    size_t	byte_counter = 0;
+    int		symbol = 0;
+    int		len = 0;
+    int		n;
+
+    // Init to all spaces.
+    vim_memset(p, ' ', MAX_MCO * fdc + 1);
+
+    level = win_foldinfo.fi_level;
+    empty = (fdc == 1) ? 0 : 1;
