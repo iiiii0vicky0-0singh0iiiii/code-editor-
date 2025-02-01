@@ -99,3 +99,30 @@ screen_fill_end(
 		c1, c2, attr);
     return nn;
 }
+/*
+ * Clear lines near the end the window and mark the unused lines with "c1".
+ * use "c2" as the filler character.
+ * When "draw_margin" is TRUE then draw the sign, fold and number columns.
+ */
+    void
+win_draw_end(
+    win_T	*wp,
+    int		c1,
+    int		c2,
+    int		draw_margin,
+    int		row,
+    int		endrow,
+    hlf_T	hl)
+{
+    int		n = 0;
+    int		attr = HL_ATTR(hl);
+    int		wcr_attr = get_wcr_attr(wp);
+
+    attr = hl_combine_attr(wcr_attr, attr);
+
+    if (draw_margin)
+    {
+#ifdef FEAT_FOLDING
+	int	fdc = compute_foldcolumn(wp, 0);
+
+	if (fdc > 0)
