@@ -126,3 +126,9 @@ win_draw_end(
 	int	fdc = compute_foldcolumn(wp, 0);
 
 	if (fdc > 0)
+ // draw the fold column
+	    n = screen_fill_end(wp, ' ', ' ', n, fdc,
+		      row, endrow, hl_combine_attr(wcr_attr, HL_ATTR(HLF_FC)));
+#endif
+#ifdef FEAT_SIGNS
+	if (signcolumn_on(wp))
