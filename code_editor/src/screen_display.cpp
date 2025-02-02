@@ -346,3 +346,131 @@ reset_screen_attr(void)
 	screen_attr = HL_BOLD | HL_UNDERLINE | HL_INVERSE | HL_STRIKETHROUGH;
 }
 
+/*
+ * Return TRUE if the character at "row" / "col" is under the popup menu and it
+ * will be redrawn soon or it is under another popup.
+ */
+    static int
+skip_for_popup(int row, int col)
+{
+    // Popup windows with zindex higher than POPUPMENU_ZINDEX go on top.
+    if (pum_under_menu(row, col, TRUE)
+#ifdef FEAT_PROP_POPUP
+	    && screen_zindex <= POPUPMENU_ZINDEX
+#endif
+	    )
+	return TRUE;
+#ifdef FEAT_PROP_POPUP
+    if (blocked_by_popup(row, col))
+	return TRUE;
+#endif
+    return FALSE;
+}
+
+/*
+ * Move one "cooked" screen line to the screen, but only the characters that
+ * have actually changed.  Handle insert/delete character.
+ * "coloff" gives the first column on the screen for this line.
+ * "endcol" gives the columns where valid characters are.
+ * "clear_width" is the width of the window.  It's > 0 if the rest of the line
+ * needs to be cleared, negative otherwise.
+ * "flags" can have bits:
+ * SLF_POPUP	    popup window
+ * SLF_RIGHTLEFT    rightleft window:
+ *    When TRUE and "clear_width" > 0, clear columns 0 to "endcol"
+ *    When FALSE and "clear_width" > 0, clear columns "endcol" to "clear_width"
+ * SLF_INC_VCOL:
+ *    When FALSE, use "last_vcol" for ScreenCols[] of the columns to clear.
+ *    When TRUE, use an increasing sequence starting from "last_vcol + 1" for
+ *    ScreenCols[] of the columns to clear.
+ */
+    void
+screen_line(
+	win_T	*wp,
+	int	row,
+	int	coloff,
+	int	endcol,
+	int	clear_width,
+	colnr_T	last_vcol,
+	int	flags UNUSED)
+{
+    unsigned	    off_from;
+    unsigned	    off_to;
+    unsigned	    max_off_from;
+    unsigned	    max_off_to;
+    int		    col = 0;
+    int		    hl;
+    int		    force = FALSE;	// force update rest of the line
+    int		    redraw_this		// bool: does character need redraw?
+#ifdef FEAT_GUI
+				= TRUE	// For GUI when while-loop empty
+#endif
+				;
+    int		    redraw_next;	// redraw_this for next character
+#ifdef FEAT_GUI_MSWIN
+    int		    changed_this;	// TRUE if character changed
+    int		    changed_next;	// TRUE if next character changed
+#endif
+    int		    clear_next = FALSE;
+    int		    char_cells;		// 1: normal char
+					// 2: occupies two display cells
+
+    // Check for illegal row and col, just in case.
+    if (row >= Rows)
+	row = Rows - 1;
+    if (endcol > Columns)
+	endcol = Columns;
+
+# ifdef FEAT_CLIPBOARD
+    clip_may_clear_selection(row, row);
+# endif
+
+    off_from = (unsigned)(current_ScreenLine - ScreenLines);
+    off_to = LineOffset[row] + coloff;
+    max_off_from = off_from + screen_Columns;
+    max_off_to = LineOffset[row] + screen_Columns;
+
+#ifdef FEAT_RIGHTLEFT
+    if (flags & SLF_RIGHTLEFT)
+    {
+	// Clear rest first, because it's left of the text.
+	if (clear_width > 0)
+	{
+	    int clear_start = col;
+
+	    while (col <= endcol && ScreenLines[off_to] == ' '
+		    && ScreenAttrs[off_to] == 0
+				  && (!enc_utf8 || ScreenLinesUC[off_to] == 0))
+	    {
+		++off_to;
+		++col;
+	    }
+	    if (col <= endcol)
+		screen_fill(row, row + 1, col + coloff,
+					    endcol + coloff + 1, ' ', ' ', 0);
+
+	    for (int i = endcol; i >= clear_start; i--)
+		ScreenCols[off_to + (i - col)] =
+		    (flags & SLF_INC_VCOL) ? ++last_vcol : last_vcol;
+	}
+	col = endcol + 1;
+	off_to = LineOffset[row] + col + coloff;
+	off_from += col;
+	endcol = (clear_width > 0 ? clear_width : -clear_width);
+    }
+#endif // FEAT_RIGHTLEFT
+
+#ifdef FEAT_PROP_POPUP
+    if (flags & SLF_POPUP)
+    {
+    // Clear the whole line, it's under a popup.
+    screen_fill(row, row + 1, 0, endcol + coloff + 1, ' ', ' ', 0);
+    for (int i = 0; i <= endcol; i++)
+        ScreenCols[off_to + i] = (flags & SLF_INC_VCOL)
+        ? ++last_vcol : last_vcol;
+    col = endcol + 1;
+    off_to = LineOffset[row] + col + coloff;
+    off_from += col;
+    endcol = (clear_width > 0 ? clear_width : -clear_width);
+    }
+
