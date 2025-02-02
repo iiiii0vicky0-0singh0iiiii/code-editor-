@@ -314,3 +314,19 @@ screen_get_current_line_off(void)
 #endif
 
 #ifdef FEAT_PROP_POPUP
+/*
+ * Return TRUE if this position has a higher level popup or this cell is
+ * transparent in the current popup.
+ */
+    static int
+blocked_by_popup(int row, int col)
+{
+    int off;
+
+    if (!popup_visible)
+	return FALSE;
+    off = row * screen_Columns + col;
+    return popup_mask[off] > screen_zindex || popup_transparent[off];
+}
+#endif
+
