@@ -329,4 +329,20 @@ blocked_by_popup(int row, int col)
     return popup_mask[off] > screen_zindex || popup_transparent[off];
 }
 #endif
+/*
+ * Reset the highlighting.  Used before clearing the screen.
+ */
+    void
+reset_screen_attr(void)
+{
+#ifdef FEAT_GUI
+    if (gui.in_use)
+	// Use a code that will reset gui.highlight_mask in
+	// gui_stop_highlight().
+	screen_attr = HL_ALL + 1;
+    else
+#endif
+	// Use attributes that is very unlikely to appear in text.
+	screen_attr = HL_BOLD | HL_UNDERLINE | HL_INVERSE | HL_STRIKETHROUGH;
+}
 
