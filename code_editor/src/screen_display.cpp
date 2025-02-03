@@ -473,4 +473,46 @@ screen_line(
     off_from += col;
     endcol = (clear_width > 0 ? clear_width : -clear_width);
     }
+    redraw_next = char_needs_redraw(off_from, off_to, endcol - col);
+#ifdef FEAT_GUI_MSWIN
+    changed_next = redraw_next;
+#endif
+
+    while (col < endcol)
+    {
+	if (has_mbyte && (col + 1 < endcol))
+	    char_cells = (*mb_off2cells)(off_from, max_off_from);
+	else
+	    char_cells = 1;
+
+	redraw_this = redraw_next;
+	redraw_next = force || char_needs_redraw(off_from + char_cells,
+			      off_to + char_cells, endcol - col - char_cells);
+
+#ifdef FEAT_GUI
+# ifdef FEAT_GUI_MSWIN
+	changed_this = changed_next;
+	changed_next = redraw_next;
+# endif
+	// If the next character was bold, then redraw the current character to
+	// remove any pixels that might have spilt over into us.  This only
+	// happens in the GUI.
+	// With MS-Windows antialiasing may also cause pixels to spill over
+	// from a previous character, no matter attributes, always redraw if a
+	// character changed.
+	if (redraw_next && gui.in_use)
+	{
+# ifndef FEAT_GUI_MSWIN
+	    hl = ScreenAttrs[off_to + char_cells];
+	    if (hl > HL_ALL)
+		hl = syn_attr2attr(hl);
+	    if (hl & HL_BOLD)
+# endif
+		redraw_this = TRUE;
+	}
+#endif
+// Do not redraw if under the popup Menu
+	if (redraw_this && skip_for_popup(row, col + coloff))
+	    redraw_this = FALSE;
+
 
