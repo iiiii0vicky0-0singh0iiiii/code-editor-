@@ -514,5 +514,106 @@ screen_line(
 // Do not redraw if under the popup Menu
 	if (redraw_this && skip_for_popup(row, col + coloff))
 	    redraw_this = FALSE;
+if (redraw_this)
+	{
+	    /*
+	     * Special handling when 'xs' termcap flag set (hpterm):
+	     * Attributes for characters are stored at the position where the
+	     * cursor is when writing the highlighting code.  The
+	     * start-highlighting code must be written with the cursor on the
+	     * first highlighted character.  The stop-highlighting code must
+	     * be written with the cursor just after the last highlighted
+	     * character.
+	     * Overwriting a character doesn't remove its highlighting.  Need
+	     * to clear the rest of the line, and force redrawing it
+	     * completely.
+	     */
+	    if (       p_wiv
+		    && !force
+#ifdef FEAT_GUI
+		    && !gui.in_use
+#endif
+		    && ScreenAttrs[off_to] != 0
+		    && ScreenAttrs[off_from] != ScreenAttrs[off_to])
+	    {
+		/*
+		 * Need to remove highlighting attributes here.
+		 */
+		windgoto(row, col + coloff);
+		out_str(T_CE);		// clear rest of this screen line
+		screen_start();		// don't know where cursor is now
+		force = TRUE;		// force redraw of rest of the line
+		redraw_next = TRUE;	// or else next char would miss out
+
+		/*
+		 * If the previous character was highlighted, need to stop
+		 * highlighting at this character.
+		 */
+		if (col + coloff > 0 && ScreenAttrs[off_to - 1] != 0)
+		{
+		    screen_attr = ScreenAttrs[off_to - 1];
+		    term_windgoto(row, col + coloff);
+		    screen_stop_highlight();
+		}
+		else
+		    screen_attr = 0;	    // highlighting has stopped
+	    }
+	    if (enc_dbcs != 0)
+	    {
+		// Check if overwriting a double-byte with a single-byte or
+		// the other way around requires another character to be
+		// redrawn.  For UTF-8 this isn't needed, because comparing
+		// ScreenLinesUC[] is sufficient.
+		if (char_cells == 1
+			&& col + 1 < endcol
+			&& (*mb_off2cells)(off_to, max_off_to) > 1)
+		{
+		    // Writing a single-cell character over a double-cell
+		    // character: need to redraw the next cell.
+		    ScreenLines[off_to + 1] = 0;
+		    redraw_next = TRUE;
+		}
+		else if (char_cells == 2
+			&& col + 2 < endcol
+			&& (*mb_off2cells)(off_to, max_off_to) == 1
+			&& (*mb_off2cells)(off_to + 1, max_off_to) > 1)
+		{
+		    // Writing the second half of a double-cell character over
+		    // a double-cell character: need to redraw the second
+		    // cell.
+		    ScreenLines[off_to + 2] = 0;
+		    redraw_next = TRUE;
+		}
+
+		if (enc_dbcs == DBCS_JPNU)
+		    ScreenLines2[off_to] = ScreenLines2[off_from];
+	    }
+	    // When writing a single-width character over a double-width
+	    // character and at the end of the redrawn text, need to clear out
+	    // the right half of the old character.
+	    // Also required when writing the right half of a double-width
+	    // char over the left half of an existing one.
+	    if (has_mbyte && col + char_cells == endcol
+		    && ((char_cells == 1
+			    && (*mb_off2cells)(off_to, max_off_to) > 1)
+			|| (char_cells == 2
+			    && (*mb_off2cells)(off_to, max_off_to) == 1
+			    && (*mb_off2cells)(off_to + 1, max_off_to) > 1)))
+		clear_next = TRUE;
+
+	    ScreenLines[off_to] = ScreenLines[off_from];
+	    if (enc_utf8)
+	    {
+		ScreenLinesUC[off_to] = ScreenLinesUC[off_from];
+		if (ScreenLinesUC[off_from] != 0)
+		{
+		    int	    i;
+
+		    for (i = 0; i < Screen_mco; ++i)
+			ScreenLinesC[i][off_to] = ScreenLinesC[i][off_from];
+		}
+	    }
+	    if (char_cells == 2)
+		ScreenLines[off_to + 1] = ScreenLines[off_from + 1];
 
 
