@@ -515,4 +515,26 @@ screen_line(
 	if (redraw_this && skip_for_popup(row, col + coloff))
 	    redraw_this = FALSE;
 
+	if (redraw_this)
+	{
+	    /*
+	     * Special handling when 'xs' termcap flag set (hpterm):
+	     * Attributes for characters are stored at the position where the
+	     * cursor is when writing the highlighting code.  The
+	     * start-highlighting code must be written with the cursor on the
+	     * first highlighted character.  The stop-highlighting code must
+	     * be written with the cursor just after the last highlighted
+	     * character.
+	     * Overwriting a character doesn't remove its highlighting.  Need
+	     * to clear the rest of the line, and force redrawing it
+	     * completely.
+	     */
+	    if (       p_wiv
+		    && !force
+#ifdef FEAT_GUI
+		    && !gui.in_use
+#endif
+		    && ScreenAttrs[off_to] != 0
+		    && ScreenAttrs[off_from] != ScreenAttrs[off_to])
+	    {
 
