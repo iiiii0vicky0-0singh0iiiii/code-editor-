@@ -111,3 +111,35 @@
 #  define FEAT_GUI
 # endif
 #endif
+#ifdef FEAT_GUI
+# if defined(FEAT_DIRECTX)
+#  define FEAT_RENDER_OPTIONS
+# endif
+#endif
+
+/*
+ * VIM_SIZEOF_INT is used in feature.h, and the system-specific included files
+ * need items from feature.h.  Therefore define VIM_SIZEOF_INT here.
+ */
+#ifdef MSWIN
+# define VIM_SIZEOF_INT 4
+#endif
+
+#ifdef AMIGA
+  // Be conservative about sizeof(int). It could be 4 too.
+# ifndef FEAT_GUI_GTK	// avoid problems when generating prototypes
+#  ifdef __GNUC__
+#   define VIM_SIZEOF_INT	4
+#  else
+#   define VIM_SIZEOF_INT	2
+#  endif
+# endif
+#endif
+#if defined(MACOS_X) && !defined(HAVE_CONFIG_H)
+#  define VIM_SIZEOF_INT __SIZEOF_INT__
+#endif
+
+#if VIM_SIZEOF_INT < 4 && !defined(PROTO)
+# error Vim only works with 32 bit int or larger
+#endif
+
