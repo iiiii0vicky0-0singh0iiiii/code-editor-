@@ -142,4 +142,45 @@
 #if VIM_SIZEOF_INT < 4 && !defined(PROTO)
 # error Vim only works with 32 bit int or larger
 #endif
+# include "auto/osdef.h"	// bring missing declarations in
+#endif
 
+#ifdef AMIGA
+# include "os_amiga.h"
+#endif
+
+#ifdef MSWIN
+# include "os_win32.h"
+#endif
+
+#if defined(MACOS_X)
+# include "os_mac.h"
+#endif
+
+#ifdef __QNX__
+# include "os_qnx.h"
+#endif
+
+#ifdef X_LOCALE
+# include <X11/Xlocale.h>
+#else
+# ifdef HAVE_LOCALE_H
+#  include <locale.h>
+# endif
+#endif
+
+/*
+ * Maximum length of a path (for non-unix systems) Make it a bit long, to stay
+ * on the safe side.  But not too long to put on the stack.
+ */
+#ifndef MAXPATHL
+# ifdef MAXPATHLEN
+#  define MAXPATHL  MAXPATHLEN
+# else
+#  define MAXPATHL  256
+# endif
+#endif
+#ifdef BACKSLASH_IN_FILENAME
+# define PATH_ESC_CHARS ((char_u *)" \t\n*?[{`%#'\"|!<")
+# define BUFFER_ESC_CHARS ((char_u *)" \t\n*?[`%#'\"|!<")
+#else
