@@ -184,3 +184,19 @@
 # define PATH_ESC_CHARS ((char_u *)" \t\n*?[{`%#'\"|!<")
 # define BUFFER_ESC_CHARS ((char_u *)" \t\n*?[`%#'\"|!<")
 #else
+#ifndef UNIX
+// Note: Some systems need both string.h and strings.h (Savage).  If the
+// system can't handle this, define NO_STRINGS_WITH_STRING_H.
+# ifdef HAVE_STRING_H
+#  include <string.h>
+# endif
+# if defined(HAVE_STRINGS_H) && !defined(NO_STRINGS_WITH_STRING_H)
+#  include <strings.h>
+# endif
+# ifdef HAVE_STAT_H
+#  include <stat.h>
+# endif
+# ifdef HAVE_STDLIB_H
+#  include <stdlib.h>
+# endif
+#endif // NON-UNIX
