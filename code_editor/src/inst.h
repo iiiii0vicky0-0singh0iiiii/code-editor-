@@ -388,3 +388,34 @@ add_pathsep(char *name)
 	strcat(name, "\\");
 }
 
+/*
+ * The normal chdir() does not change the default drive.  This one does.
+ */
+    int
+change_drive(int drive)
+{
+    char temp[3] = "-:";
+    temp[0] = (char)(drive + 'A' - 1);
+    return !SetCurrentDirectory(temp);
+}
+
+/*
+ * Change directory to "path".
+ * Return 0 for success, -1 for failure.
+ */
+    int
+mch_chdir(char *path)
+{
+    if (path[0] == NUL)		// just checking...
+	return 0;
+    if (path[1] == ':')		// has a drive name
+    {
+	if (change_drive(mytoupper(path[0]) - 'A' + 1))
+	    return -1;		// invalid drive name
+	path += 2;
+    }
+    if (*path == NUL)		// drive name only
+	return 0;
+    return chdir(path);		// let the normal chdir() do the rest
+}
+
