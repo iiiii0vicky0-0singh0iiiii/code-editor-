@@ -344,5 +344,47 @@ struct
     {"vimtutor","vimtutor.bat", "Vim tutor.lnk",
 			"vimtutor.bat",  "vimtutor.bat", "", NULL, NULL, ""},
 };
+#if defined(DOSINST)
+/*
+ * Run an external command and wait for it to finish.
+ */
+    static void
+run_command(char *cmd)
+{
+    char	*cmd_path;
+    char	cmd_buf[BUFSIZE * 2 + 35];
+    char	*p;
+ cmd_path = searchpath_save("cmd.exe");
+    if (cmd_path != NULL)
+    {
+	// There is a cmd.exe, so this might be Windows NT.  If it is,
+	// we need to call cmd.exe explicitly.  If it is a later OS,
+	// calling cmd.exe won't hurt if it is present.
+	// Also, "start" on NT expects a window title argument.
+	// Replace the slashes with backslashes.
+	while ((p = strchr(cmd_path, '/')) != NULL)
+	    *p = '\\';
+	sprintf(cmd_buf, "%s /c start \"vimcmd\" /wait %s", cmd_path, cmd);
+	free(cmd_path);
+    }
+    else
+    {
+	// No cmd.exe, just make the call and let the system handle it.
+	sprintf(cmd_buf, "start /w %s", cmd);
+    }
+    system(cmd_buf);
+}
+#endif
 
+/*
+ * Append a backslash to "name" if there isn't one yet.
+ */
+    void
+add_pathsep(char *name)
+{
+    int		len = strlen(name);
+
+    if (len > 0 && name[len - 1] != '\\' && name[len - 1] != '/')
+	strcat(name, "\\");
+}
 
