@@ -69,3 +69,20 @@ typedef struct exarg exarg_T;
  * Not supported commands are included to avoid ambiguities.
  */
 #ifdef DO_DECLARE_EXCMD
+# define EXCMD(a, b, c, d, e) \
+	{(char_u *)b, STRLEN_LITERAL(b), c, (long_u)(d), e}
+
+typedef void (*ex_func_T) (exarg_T *eap);
+
+static struct cmdname
+{
+    char_u	*cmd_name;	// name of the command
+    size_t	cmd_namelen;	// length of the command name
+    ex_func_T   cmd_func;	// function for this command
+    long_u	cmd_argt;	// flags declared above
+    cmd_addr_T	cmd_addr_type;	// flag for address type
+} cmdnames[] =
+#else
+# define EXCMD(a, b, c, d, e)  a
+enum CMD_index
+#endif
