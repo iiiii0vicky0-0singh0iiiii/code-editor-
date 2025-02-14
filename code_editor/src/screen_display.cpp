@@ -537,4 +537,36 @@ screen_line(
 		    && ScreenAttrs[off_to] != 0
 		    && ScreenAttrs[off_from] != ScreenAttrs[off_to])
 	    {
+/*
+		 * Need to remove highlighting attributes here.
+		 */
+		windgoto(row, col + coloff);
+		out_str(T_CE);		// clear rest of this screen line
+		screen_start();		// don't know where cursor is now
+		force = TRUE;		// force redraw of rest of the line
+		redraw_next = TRUE;	// or else next char would miss out
+
+		/*
+		 * If the previous character was highlighted, need to stop
+		 * highlighting at this character.
+		 */
+		if (col + coloff > 0 && ScreenAttrs[off_to - 1] != 0)
+		{
+		    screen_attr = ScreenAttrs[off_to - 1];
+		    term_windgoto(row, col + coloff);
+		    screen_stop_highlight();
+		}
+		else
+		    screen_attr = 0;	    // highlighting has stopped
+	    }
+	    if (enc_dbcs != 0)
+	    {
+		// Check if overwriting a double-byte with a single-byte or
+		// the other way around requires another character to be
+		// redrawn.  For UTF-8 this isn't needed, because comparing
+		// ScreenLinesUC[] is sufficient.
+		if (char_cells == 1
+			&& col + 1 < endcol
+			&& (*mb_off2cells)(off_to, max_off_to) > 1)
+		{
 
