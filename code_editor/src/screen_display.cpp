@@ -579,4 +579,42 @@ screen_line(
 			&& (*mb_off2cells)(off_to, max_off_to) == 1
 			&& (*mb_off2cells)(off_to + 1, max_off_to) > 1)
 		{
+  // Writing the second half of a double-cell character over
+		    // a double-cell character: need to redraw the second
+		    // cell.
+		    ScreenLines[off_to + 2] = 0;
+		    redraw_next = TRUE;
+		}
 
+		if (enc_dbcs == DBCS_JPNU)
+		    ScreenLines2[off_to] = ScreenLines2[off_from];
+	    }
+	    // When writing a single-width character over a double-width
+	    // character and at the end of the redrawn text, need to clear out
+	    // the right half of the old character.
+	    // Also required when writing the right half of a double-width
+	    // char over the left half of an existing one.
+	    if (has_mbyte && col + char_cells == endcol
+		    && ((char_cells == 1
+			    && (*mb_off2cells)(off_to, max_off_to) > 1)
+			|| (char_cells == 2
+			    && (*mb_off2cells)(off_to, max_off_to) == 1
+			    && (*mb_off2cells)(off_to + 1, max_off_to) > 1)))
+		clear_next = TRUE;
+
+	    ScreenLines[off_to] = ScreenLines[off_from];
+	    if (enc_utf8)
+	    {
+		ScreenLinesUC[off_to] = ScreenLinesUC[off_from];
+		if (ScreenLinesUC[off_from] != 0)
+		{
+		    int	    i;
+
+		    for (i = 0; i < Screen_mco; ++i)
+			ScreenLinesC[i][off_to] = ScreenLinesC[i][off_from];
+		}
+	    }
+	    if (char_cells == 2)
+		ScreenLines[off_to + 1] = ScreenLines[off_from + 1];
+
+#if defined(FEAT_GUI) || defined(UNIX)
