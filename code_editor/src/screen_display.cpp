@@ -569,4 +569,14 @@ screen_line(
 			&& col + 1 < endcol
 			&& (*mb_off2cells)(off_to, max_off_to) > 1)
 		{
+ // Writing a single-cell character over a double-cell
+		    // character: need to redraw the next cell.
+		    ScreenLines[off_to + 1] = 0;
+		    redraw_next = TRUE;
+		}
+		else if (char_cells == 2
+			&& col + 2 < endcol
+			&& (*mb_off2cells)(off_to, max_off_to) == 1
+			&& (*mb_off2cells)(off_to + 1, max_off_to) > 1)
+		{
 
