@@ -680,3 +680,73 @@ text_to_screenline(win_T *wp, char_u *text, int col)
 	else
 # endif
 	    idx = off + col;
+// The idea of what is the previous and next
+			// character depends on 'rightleft'.
+			if (wp->w_p_rl)
+			{
+			    pc = prev_c;
+			    pc1 = prev_c1;
+			    nc = utf_ptr2char(p + c_len);
+			    prev_c1 = u8cc[0];
+			}
+			else
+			{
+			    pc = utfc_ptr2char(p + c_len, pcc);
+			    nc = prev_c;
+			    pc1 = pcc[0];
+			}
+			prev_c = u8c;
+
+			u8c = arabic_shape(u8c, &firstbyte, &u8cc[0],
+								 pc, pc1, nc);
+			ScreenLines[idx] = firstbyte;
+		    }
+		    else
+			prev_c = u8c;
+#endif
+		    // Non-BMP character: display as ? or fullwidth ?.
+		    ScreenLinesUC[idx] = u8c;
+		    for (i = 0; i < Screen_mco; ++i)
+		    {
+			ScreenLinesC[i][idx] = u8cc[i];
+			if (u8cc[i] == 0)
+			    break;
+		    }
+		}
+		if (cells > 1)
+		    ScreenLines[idx + 1] = 0;
+	    }
+	    else if (enc_dbcs == DBCS_JPNU && *p == 0x8e)
+		// double-byte single width character
+		ScreenLines2[idx] = p[1];
+	    else if (cells > 1)
+		// double-width character
+		ScreenLines[idx + 1] = p[1];
+	    col += cells;
+	    idx += cells;
+	    p += c_len;
+	}
+    }
+    else
+    {
+	int len = (int)STRLEN(text);
+	int n = wp->w_width - col;
+
+	if (len > n)
+	    len = n;
+	if (len > 0)
+	{
+#ifdef FEAT_RIGHTLEFT
+	    if (wp->w_p_rl)
+		mch_memmove(current_ScreenLine, text, len);
+	    else
+#endif
+		mch_memmove(current_ScreenLine + col, text, len);
+	    col += len;
+	}
+    }
+    return col;
+}
+#endif
+
+#ifdef FEAT_MENU
