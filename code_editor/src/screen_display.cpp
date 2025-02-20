@@ -618,3 +618,65 @@ screen_line(
 		ScreenLines[off_to + 1] = ScreenLines[off_from + 1];
 
 #if defined(FEAT_GUI) || defined(UNIX)
+/*
+ * To be called when "updating_screen" was set before and now the postponed
+ * side effects may take place.
+ */
+    void
+after_updating_screen(int may_resize_shell UNUSED)
+{
+    updating_screen = FALSE;
+#ifdef FEAT_GUI
+    if (may_resize_shell)
+	gui_may_resize_shell();
+#endif
+#ifdef FEAT_TERMINAL
+    term_check_channel_closed_recently();
+#endif
+
+#ifdef HAVE_DROP_FILE
+    // If handle_drop() was called while updating_screen was TRUE need to
+    // handle the drop now.
+    handle_any_postponed_drop();
+#endif
+}
+
+/*
+ * Update all windows that are editing the current buffer.
+ */
+    void
+update_curbuf(int type)
+{
+    redraw_curbuf_later(type);
+    update_screen(type);
+}
+
+#if defined(FEAT_MENU) || defined(FEAT_FOLDING)
+/*
+ * Copy "text" to ScreenLines using "attr".
+ * Returns the next screen column.
+ */
+    static int
+text_to_screenline(win_T *wp, char_u *text, int col)
+{
+    int		off = (int)(current_ScreenLine - ScreenLines);
+
+    if (has_mbyte)
+    {
+	int	cells;
+	int	u8c, u8cc[MAX_MCO];
+	int	i;
+	int	idx;
+	int	c_len;
+	char_u	*p;
+# ifdef FEAT_ARABIC
+	int	prev_c = 0;		// previous Arabic character
+	int	prev_c1 = 0;		// first composing char for prev_c
+# endif
+
+# ifdef FEAT_RIGHTLEFT
+	if (wp->w_p_rl)
+	    idx = off;
+	else
+# endif
+	    idx = off + col;
