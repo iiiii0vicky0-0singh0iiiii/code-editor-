@@ -10,7 +10,7 @@ Our goal is to revolutionize the way developers write, debug, and collaborate on
 
 ---
 
-## ✨ Features & Capabilities
+## ✨ - Features & Capabilities
 
 ### 🌍 Multi-language Support
 - Support for major programming languages including **Python, JavaScript, Java, C++, PHP, Ruby, Go, Rust, and more!**
