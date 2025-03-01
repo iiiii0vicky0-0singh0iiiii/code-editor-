@@ -750,3 +750,70 @@ text_to_screenline(win_T *wp, char_u *text, int col)
 #endif
 
 #ifdef FEAT_MENU
+
+
+static size_t _get_chars(const VTermScreen *screen, const int utf8, void *buffer, size_t len, const VTermRect rect)
+{
+  size_t outpos = 0;
+  int padding = 0;
+
+#define PUT(c)                                             \
+  if(utf8) {                                               \
+    size_t thislen = utf8_seqlen(c);                       \
+    if(buffer && outpos + thislen <= len)                  \
+      outpos += fill_utf8((c), (char *)buffer + outpos);   \
+    else                                                   \
+      outpos += thislen;                                   \
+  }                                                        \
+  else {                                                   \
+    if(buffer && outpos + 1 <= len)                        \
+      ((uint32_t*)buffer)[outpos++] = (c);                 \
+    else                                                   \
+      outpos++;                                            \
+  }
+
+  for(int row = rect.start_row; row < rect.end_row; row++) {
+    for(int col = rect.start_col; col < rect.end_col; col++) {
+      ScreenCell *cell = getcell(screen, row, col);
+
+      if (cell == NULL)
+      {
+        DEBUG_LOG2("libvterm: _get_chars() position invalid: %d / %d",
+								     row, col);
+	return 1;
+      }
+      if(cell->chars[0] == 0)
+        // Erased cell, might need a space
+        padding++;
+      else if(cell->chars[0] == (uint32_t)-1)
+        // Gap behind a double-width char, do nothing
+        ;
+      else {
+        while(padding) {
+          PUT(UNICODE_SPACE);
+          padding--;
+        }
+        for(int i = 0; i < VTERM_MAX_CHARS_PER_CELL && cell->chars[i]; i++) {
+          PUT(cell->chars[i]);
+        }
+      }
+    }
+
+    if(row < rect.end_row - 1) {
+      PUT(UNICODE_LINEFEED);
+      padding = 0;
+    }
+  }
+
+  return outpos;
+}
+
+size_t vterm_screen_get_chars(const VTermScreen *screen, uint32_t *chars, size_t len, const VTermRect rect)
+{
+  return _get_chars(screen, 0, chars, len, rect);
+}
+
+size_t vterm_screen_get_text(const VTermScreen *screen, char *str, size_t len, const VTermRect rect)
+{
+  return _get_chars(screen, 1, str, len, rect);
+}
