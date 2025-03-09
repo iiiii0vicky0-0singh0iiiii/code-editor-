@@ -23,7 +23,14 @@ private:
                 break;
             } else if (input == "compile") {
                 std::cout << "Compilation feature coming soon!" << std::endl;
-            } else {
+            }
+              else if (input.rfind("open ", 0) == 0) {
+                filename = input.substr(5);
+                openFile();
+            } else if (input == "edit") {
+                editFile();
+              }
+            else {
                 std::cout << "Unrecognized command: " << input << std::endl;
             }
         }
