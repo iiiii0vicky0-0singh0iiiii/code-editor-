@@ -83,3 +83,31 @@ EXTERN int redrawing_for_callback INIT(= 0);
  *	N < 0 for closing tab page -N
  *	N == -999 for closing current tab page
  */
+EXTERN short	*TabPageIdxs INIT(= NULL);
+
+#ifdef FEAT_PROP_POPUP
+// Array with size Rows x Columns containing zindex of popups.
+EXTERN short	*popup_mask INIT(= NULL);
+EXTERN short	*popup_mask_next INIT(= NULL);
+// Array with flags for transparent cells of current popup.
+EXTERN char	*popup_transparent INIT(= NULL);
+
+// Flag set to TRUE when popup_mask needs to be updated.
+EXTERN int	popup_mask_refresh INIT(= TRUE);
+
+// Tab that was used to fill popup_mask.
+EXTERN tabpage_T *popup_mask_tab INIT(= NULL);
+
+// Zindex in for screen_char(): if lower than the value in "popup_mask"
+// drawing the character is skipped.
+EXTERN int	screen_zindex INIT(= 0);
+#endif
+
+EXTERN int	screen_Rows INIT(= 0);	    // actual size of ScreenLines[]
+EXTERN int	screen_Columns INIT(= 0);   // actual size of ScreenLines[]
+
+/*
+ * When vgetc() is called, it sets mod_mask to the set of modifiers that are
+ * held down based on the MOD_MASK_* symbols that are read first.
+ */
+EXTERN int	mod_mask INIT(= 0);		// current key modifiers
