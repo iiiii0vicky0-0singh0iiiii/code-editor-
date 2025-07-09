@@ -1,0 +1,297 @@
+*HTML.txt*	Set of HTML/XHTML macros, menus and toolbar buttons.
+		Last change: 2011 Sep 03
+		Author: Christian J. Robinson
+
+						*HTML.vim* *HTML-macros*
+						*XHTML-macros*
+
+This is a set of HTML/XHTML macros, menus, and toolbar buttons to make editing
+HTML files easier.  The original Copyright goes to Doug Renze, although nearly
+all of his efforts have been modified in this implementation.  All the changes
+are Copyright Christian J. Robinson.  These macros and the supporting scripts
+are distributable under the terms of the GNU GPL version 2 or later.
+
+------------------------------------------------------------------------------
+
+1. Introduction				|html-intro|
+2. Customization Variables		|html-variables|
+3. Commands				|html-commands|
+4. Mappings for Normal <> Tags		|html-tags|
+5. Mappings for &...; Codes, such as &lt; &gt; &amp; and so on
+					|character-codes|
+6. How to Use Browser Mappings		|browser-control|
+7. Miscellaneous Extras			|html-misc|
+
+==============================================================================
+1. Introduction						*html-intro*
+
+To start, you should familiarize yourself with Vim enough to know the
+terminology, and you should know HTML to some degree.
+
+The mappings are local to the buffer the script was sourced from, and the menu
+and toolbar are active only for buffers the script was sourced from.
+
+This help file follows the Vim help file standards.  To see what modes a
+mapping works in see the tags between the **'s.  For example, the |;;| mapping
+below works in normal, insert mode and visual mode.
+
+In the descriptions of the mappings I often use <CR> to mean a literal
+newline.
+
+							*html-smart-tag*
+Noted tags are "smart"--if syntax highlighting is enabled it can be used to
+detect whether to close then open a tag instead of open then close the tag.
+For example, if the cursor is in italicized text and you type ;it, it will
+insert </I><I> instead of <I></I>.
+
+This can not be done on most tags due to its dependence on the syntax
+highlighting.
+
+NOTE: Some tags are synonyms and Vim can not distinguish between them.  For
+example, if you're within <I></I> and type |;em| it will assume you want
+</EM><EM> rather than <EM></EM>, which you should not be doing anyway.
+
+							*n_;;* *i_;;* *v_;;*
+;;	Most of the mappings start with ; so ;; is mapped to insert a single
+	; character in insert mode, behave like a single ; in normal mode,
+	etc.  (The semicolons in this mapping are changed to whatever
+	|g:html_map_leader| is set to.)
+
+							*i_;&*
+;&	The HTML |character-entities| insert mode mappings start with &, so
+	typing ;& in insert mode will insert a literal & character.
+	(In actuality this mapping is defined as |g:html_map_leader| +
+	|g:html_map_entity_leader| to insert whatever is in
+	|g:html_map_entity_leader|.) (Also see |n_;&|)
+
+				*html-<Tab>* *html-tab* *html-CTRL-I*
+				*i_html-<Tab>* *i_html-tab* *i_html-CTRL-I*
+				*v_html-<Tab>* *v_html-tab* *v_html-CTRL-I*
+<Tab>	If the cursor is on a closing tag the tab key jumps the cursor after
+	the tag.  Otherwise the tab key will jump the cursor to an unfilled
+	tag somewhere in the file.  For example, if you had the tag:
+>
+	 <A HREF=""></A>
+<
+	And you hit tab, your cursor would be placed on the second " so you
+	could insert text easily.  Next time you hit tab it would be placed on
+	the < character of </A>.  And the third time you hit tab the cursor
+	would be placed on the > of </A>, and so on.  This works for tags
+	split across lines, such as:
+>
+	 <TABLE>
+	 </TABLE>
+<
+	Currently using this mapping in visual mode clears the visual
+	selection.
+
+	See |g:no_html_tab_mapping| if you do not want these mappings to be
+	defined, in which case ;<Tab> will be used for the mappings instead.
+
+	[I think the use of tab is acceptable because I do not like the idea
+	of hard tabs or indentation greater than one or two spaces in HTML.]
+
+					*i_;<Tab>* *i_;tab* *i_;CTRL-I*
+					*n_;<Tab>* *n_;tab* *n_;CTRL-I*
+;<Tab>	To insert a hard tab (; then the tab key).  If |g:no_html_tab_mapping|
+	is set this mapping replaces the normal |html-tab| mapping instead.
+	(See |g:html_map_leader|)
+
+								*n_;html*
+;html	This macro inserts a basic template at the top of the file.  If the
+	buffer already contains some text you are asked if you want to replace
+	it or add the template anyway.  (See |g:html_map_leader|)
+
+	See |g:html_template| for information on how to customize the
+	template.
+
+
+	*disable-HTML-macros*	*HTML-macros-disable*	*HTML-disable-macros*
+	*disable-HTML-mappings*	*HTML-mappings-disable*	*HTML-disable-mappings*
+							*:HTMLmappings*
+:HTML[mappings] {disable/off/enable/on/html/xhtml}
+	This command allows the HTML macros to be disabled and re-enabled.
+	This is useful for editing inline PHP, JavaScript, etc. where you
+	would want to be able to type literal ";", "&" and tab characters
+	without interference.  (Also see |;;|, |;&| and |;<Tab>|)
+
+	Note that all of the mappings defined by calling |HTMLmap()| or
+	|HTMLmapo()|--including all of the mappings defined by this
+	script--are disabled/enabled when this command is used, regardless of
+	what |g:html_map_leader| is set to.
+
+	You may also use this command to switch the mappings into HTML or
+	XHTML mode.
+
+	The argument to this command can be abbreviated to the first character
+	rather than the full word.
+
+==============================================================================
+2. Customization Variables		*html-variables* *html-configuration*
+					*html-customization*
+
+You can set the following global Vim variables to control the behavior of the
+macros.  It is recommended you set these variables in your .vimrc--some of
+them are only effective if they are set before HTML.vim is sourced.
+
+Note that "nonzero" means anything besides "no", "false", 0, or "" (empty
+value)--case insensitive.
+
+*g:do_xhtml_mappings* *b:do_xhtml_mappings*
+Set this variable to a nonzero value if you prefer XHTML compatible tags to be
+defined.  Setting this forces |b:html_tag_case| to "lowercase".  This is
+automatic if you are already editing a file that Vim detects as XHTML.  This
+variable must be set before HTML.vim is sourced for the current buffer.  You
+can also set this on a per-buffer basis by using b:do_xhtml_mappings instead.
+e.g.: >
+	:let g:do_xhtml_mappings = 'yes'
+
+*g:html_tag_case* *b:html_tag_case*
+This variable can be set to "l" / "lower" / "lowercase" or "u" / "upper" /
+"uppercase" to determine the case of the text in the HTML tags.  This variable
+must be set before HTML.vim is sourced for the current buffer.  The default is
+"uppercase".  You can also set this on a per-buffer basis by using
+b:html_tag_case instead.  This variable is ignored when editing XHTML files
+(see |g:do_xhtml_mappings|).  e.g: >
+	:let g:html_tag_case = 'lowercase'
+
+*g:html_tag_case_autodetect*
+Set this variable to a nonzero value if you want to automatically detect what
+the value of |b:html_tag_case| should be.  This is done by examining the file
+for both upper and lower case tags (tag attributes are not examined).  If only
+one type is found the tag case for the buffer is set to that value.  This
+variable is ignored if you have set |g:do_xhtml_mappings|.  e.g.: >
+	:let g:html_tag_case_autodetect = 'yes'
+
+*g:html_map_leader*
+This variable can be set to the character you want for the leader of the
+mappings defined under |html-tags|, the default being ';'.  This variable must
+be set before HTML.vim is sourced.  You can set this to your |mapleader| or
+|maplocalleader|.  e.g.: >
+	:let g:html_map_leader = g:maplocalleader
+
+*g:html_map_entity_leader*
+This variable can be set to the character you want for the leader of the
+character entity insert mode mappings defined under |character-entities|, the
+default being '&'.  This variable must be set before HTML.vim is sourced.  If
+you attempt to set this to the same value as |g:html_map_leader| you will get
+an error.  e.g.: >
+	:let g:html_map_entity_leader = '\'
+
+*g:no_html_map_override*
+Set this variable to a nonzero value if you do not want this plugin to
+override mappings that already exist.  When this variable is not set you will
+get a warning message when this plugin overrides a mapping.  This variable
+must be set before HTML.vim is sourced.  e.g.: >
+	:let g:no_html_map_override = 'yes'
+
+This only applies to the mappings defined internally to the plugin.  If you
+call the |HTMLmap()| function elsewhere you will still get a warning message
+when there's an already existing mapping and the mapping will still be
+overridden.
+
+*g:no_html_maps* *b:no_html_maps*
+Set this variable a regular expression to match against mappings.  If a
+mapping to be defined matches this regular expression it will not be defined.
+You can also set this on a per-buffer basis by using b:no_html_maps instead.
+The patterns are case sensitive, will not undergo |g:html_map_leader| and
+|g:html_map_entity_leader| substitution, and must be set before HTML.vim is
+sourced.  e.g., to suppress the <A HREF>, <IMG SRC> and the centered headers
+tags: >
+	:let g:no_html_maps = '^\(;ah\|;im\|;H\d\)$'
+
+This only applies to the mappings defined internally to the plugin.  If you
+call the |HTMLmap()| function elsewhere the mapping will be defined even if it
+matches this regular expression.  This is useful if you wish to define custom
+variants of some of the plugin's mappings without getting warning messages.
+
+*g:no_html_tab_mapping*
+Set this variable to a nonzero value if you do not want the tab key to be
+mapped in normal, visual and insert mode.  ;<Tab> will be used instead.  See
+|html-tab| and |i_;tab|.  This variable must be set before HTML.vim is sourced
+for the current buffer.  e.g.: >
+	:let g:no_html_tab_mapping = 'yes'
+
+Note that you can suppress the defining of both <Tab> and ;<Tab> as a mapping
+by adding "\t" to |g:no_html_maps| instead.
+
+*g:no_html_toolbar*
+Set this variable to a nonzero value if you do not want this plugin to modify
+the Vim toolbar and add "T" to 'guioptions'.  This variable must be set before
+HTML.vim is sourced.  e.g.: >
+	:let g:no_html_toolbar = 'yes'
+
+*g:no_html_menu*
+Set this variable to a nonzero value if you do not want the menu items to be
+defined at all.  This implies that |g:no_html_toolbar| is set as well.  This
+variable must be set before HTML.vim is sourced.  e.g.: >
+	:let g:no_html_menu = 'yes'
+
+*g:force_html_menu*
+Set this variable to a nonzero value if you want the menu items to be defined
+even if you're not in the GUI.  This is useful if you want to use the menus in
+the console (see |console-menus|).  This variable is ignored if
+|g:no_html_menu| is set.  This variable must be set before HTML.vim is
+sourced.  e.g.: >
+	:let g:force_html_menu = 'yes'
+
+*g:html_template* *b:html_template*
+Set this variable to the location of your template file to be used by the
+|;html| mapping.  You can also set this on a per-buffer basis by using
+b:html_template instead.  If unset, a basic internal template will be used.
+
+See |html-template-tokens| for special tokens you can use within the template.
+
+*g:html_authorname* *g:html_authoremail*
+Within the internal template, html_authorname is inserted inside
+<META NAME="Author" CONTENT="...">
+g:html_authoremail is converted to |g:html_authoremail_encoded| and inserted
+inside <LINK REV="made" HREF="mailto:...">  e.g.: >
+	:let g:html_authorname  = 'John Smith'
+	:let g:html_authoremail = 'jsmith@example.com'
+
+These two variables are also used for the <ADDRESS></ADDRESS> section of the
+internal template.
+
+The default for these variables are empty strings.
+
+*g:html_authoremail_encoded*
+This variable will be set using |HTMLencodeString()| if your
+|g:html_authoremail| variable is set.  (Do not set this variable yourself, it
+will be overwritten when the template macro is used.)
+
+*g:html_bgcolor* *g:html_textcolor* *g:html_linkcolor*
+*g:html_alinkcolor* *g:html_vlinkcolor*
+These control the <BODY> tag in the internal template and can also be used as
+|html-tokens| in the user defined template.  They default to: >
+	:let g:html_bgcolor     = '#FFFFFF'
+	:let g:html_textcolor   = '#000000'
+	:let g:html_linkcolor   = '#0000EE'
+	:let g:html_alinkcolor  = '#FF0000'
+	:let g:html_vlinkcolor  = '#990066'
+
+*g:html_default_charset*
+This defaults to "iso-8859-1" and is the value used if a character set can not
+be detected by the 'fileencoding' or 'encoding' options.  See |;ct| and
+|html-tokens| for how this is used.  (Also see |html-author-notes|)
+
+*g:html_charset*
+If this variable is set it completely overrides the Content-Type charset
+detection for the |;ct| mapping and in the |html-tokens|.  Normally this
+should be left unset.
+
+------------------------------------------------------------------------------
+					*html-template-tokens* *html-tokens*
+
+When you define a template file with the |g:html_template| variable, special
+tokens within the template will automatically replaced with their
+corresponding variable value:
+
+Token:			 Variable: ~
+%authorname%		|g:html_authorname|
+%authoremail%		|g:html_authoremail_encoded|
+%bgcolor%		|g:html_bgcolor|
+%textcolor%		|g:html_textcolor|
+%linkcolor%		|g:html_linkcolor|
+%alinkcolor%		|g:html_alinkcolor|
+%vlinkcolor%		|g:html_vlinkcolor|
