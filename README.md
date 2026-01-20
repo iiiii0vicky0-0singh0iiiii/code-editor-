@@ -1,4 +1,4 @@
-# 🌟 Code Editor Project - ✨ Elevate Your Coding Experience 🚀
+#  Code Editor Project -  Elevate Your Coding Experience 🚀
 
 Welcome to the **Code Editor Project**, a next-generation, open-source code editor designed for developers of all skill levels. Whether you’re a beginner learning to code or an experienced developer building sophisticated applications, our editor provides a powerful and seamless experience with cutting-edge features.
 
