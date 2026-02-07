@@ -6,6 +6,10 @@
 #define EDITOR_VERSION_MINOR 0
 #define EDITOR_VERSION_PATCH 0
 
+#define EDITOR_NAME        
+#define EDITOR_DESCRIPTION 
+#define EDITOR_AUTHOR      
+
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
