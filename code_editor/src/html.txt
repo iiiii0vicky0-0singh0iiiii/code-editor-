@@ -108,6 +108,7 @@ example, if you're within <I></I> and type |;em| it will assume you want
 
 	*disable-HTML-macros*	*HTML-macros-disable*	*HTML-disable-macros*
 	*disable-HTML-mappings*	*HTML-mappings-disable*	*HTML-disable-mappings*
+*disable-HTML-mappings*	*HTML-mappings-disable*	*HTML-disable-aRT - code*
 							*:HTMLmappings*
 :HTML[mappings] {disable/off/enable/on/html/xhtml}
 	This command allows the HTML macros to be disabled and re-enabled.
